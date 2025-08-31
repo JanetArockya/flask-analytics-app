@@ -224,9 +224,8 @@ def get_google_analytics_data():
     Returns:
         dict: Combined analytics data from GA4
     """
-    # You'll need to replace this with your actual GA4 Property ID
-    # Format: "properties/XXXXXXXXX" where X is your property ID number
-    ga_property_id = "properties/YOUR_GA4_PROPERTY_ID"
+    # Your actual GA4 Property ID
+    ga_property_id = "properties/503112581"
     
     ga = GoogleAnalyticsIntegration(ga_property_id)
     
