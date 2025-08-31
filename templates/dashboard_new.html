@@ -1,179 +1,507 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Analytics Dashboard</title>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GC4HBWCR8E"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+{% extends "base.html" %}
 
-      gtag('config', 'G-GC4HBWCR8E');
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        nav {
-            background-color: #333;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin: 0 10px;
-            padding: 5px 10px;
-            border-radius: 3px;
-        }
-        nav a:hover {
-            background-color: #555;
-        }
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .metric-card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-align: center;
-        }
+{% block title %}Analytics Dashboard - Analytics Pro{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .dashboard-hero {
+        background: var(--gradient);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .metric-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        border: none;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient);
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+    
+    .metric-value {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .metric-label {
+        color: #6b7280;
+        font-size: 0.95rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .metric-icon {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.4rem;
+        opacity: 0.8;
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .chart-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient);
+    }
+    
+    .chart-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f1f5f9;
+    }
+    
+    .chart-title {
+        color: var(--dark-color);
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .chart-title i {
+        margin-right: 0.5rem;
+        color: var(--primary-color);
+    }
+    
+    .chart-subtitle {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
+    .dashboard-stats {
+        background: var(--dark-color);
+        color: white;
+        padding: 2rem 0;
+        margin: 2rem 0;
+        border-radius: 15px;
+    }
+    
+    .no-data {
+        text-align: center;
+        padding: 3rem;
+        color: #6b7280;
+    }
+    
+    .no-data i {
+        font-size: 4rem;
+        color: #d1d5db;
+        margin-bottom: 1rem;
+    }
+    
+    .refresh-btn {
+        background: var(--accent-color);
+        border: none;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .refresh-btn:hover {
+        background: #d97706;
+        transform: translateY(-1px);
+    }
+    
+    .insight-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .insight-card h5 {
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .chart-canvas {
+        position: relative;
+        height: 300px;
+    }
+    
+    @media (max-width: 768px) {
         .metric-value {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #2196F3;
+            font-size: 2.2rem;
         }
-        .metric-label {
-            color: #666;
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-        .chart-container {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-        h2 {
-            color: #555;
-            border-bottom: 2px solid #2196F3;
-            padding-bottom: 5px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>📊 Analytics Dashboard</h1>
-        <nav>
-            <a href="/">🏠 Home</a>
-            <a href="/about">ℹ️ About</a>
-            <a href="/services">🛠️ Services</a>
-            <a href="/contact">📞 Contact</a>
-            <a href="/dashboard">📊 Analytics Dashboard</a>
-        </nav>
         
-        <div class="dashboard-grid">
+        .chart-container {
+            padding: 1.5rem;
+        }
+        
+        .chart-canvas {
+            height: 250px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Hero -->
+<section class="dashboard-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="mb-2">📊 Analytics Dashboard</h1>
+                <p class="mb-0 opacity-90">Real-time insights into your website performance and user behavior</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <button class="refresh-btn" onclick="location.reload()">
+                    <i class="fas fa-sync-alt me-2"></i>Refresh Data
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Key Metrics -->
+<section class="container mb-4">
+    <div class="row g-4">
+        <div class="col-lg-3 col-md-6">
             <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="fas fa-percentage"></i>
+                </div>
                 <div class="metric-value">{{ "%.1f"|format(bounce_rate) }}%</div>
                 <div class="metric-label">Bounce Rate</div>
             </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
             <div class="metric-card">
-                <div class="metric-value">{{ "%.1f"|format(avg_session_duration) }}s</div>
-                <div class="metric-label">Avg Session Duration</div>
+                <div class="metric-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="metric-value">{{ "%.0f"|format(avg_session_duration) }}s</div>
+                <div class="metric-label">Avg Session</div>
             </div>
         </div>
-
-        <div class="chart-container">
-            <h2>📈 Page Views</h2>
-            <canvas id="pageViewsChart" width="400" height="200"></canvas>
+        <div class="col-lg-3 col-md-6">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="metric-value">{{ page_views|length if page_views else 0 }}</div>
+                <div class="metric-label">Total Pages</div>
+            </div>
         </div>
-
-        <div class="chart-container">
-            <h2>🏆 Most Visited Pages</h2>
-            <canvas id="mostVisitedChart" width="400" height="200"></canvas>
+        <div class="col-lg-3 col-md-6">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="metric-value">{{ most_visited|sum(attribute=1) if most_visited else 0 }}</div>
+                <div class="metric-label">Total Views</div>
+            </div>
         </div>
     </div>
+</section>
 
-    <script>
-        // Page Views Chart
-        const pageViewsCtx = document.getElementById('pageViewsChart').getContext('2d');
-        const pageViewsChart = new Chart(pageViewsCtx, {
-            type: 'bar',
-            data: {
-                labels: [{% for page, count in page_views %}'{{ page|title }}'{% if not loop.last %},{% endif %}{% endfor %}],
-                datasets: [{
-                    label: 'Page Views',
-                    data: [{% for page, count in page_views %}{{ count }}{% if not loop.last %},{% endif %}{% endfor %}],
-                    backgroundColor: [
-                        'rgba(54, 162, 235, 0.8)',
-                        'rgba(255, 99, 132, 0.8)',
-                        'rgba(255, 205, 86, 0.8)',
-                        'rgba(75, 192, 192, 0.8)',
-                        'rgba(153, 102, 255, 0.8)'
-                    ],
-                    borderColor: [
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(255, 205, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)'
-                    ],
-                    borderWidth: 1
-                }]
+<!-- Insights Alert -->
+{% if page_views %}
+<section class="container">
+    <div class="insight-card">
+        <h5><i class="fas fa-lightbulb me-2"></i>Quick Insights</h5>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="mb-2"><strong>Most Popular:</strong> {{ most_visited[0][0]|title if most_visited else 'No data' }} page</p>
+                <p class="mb-0"><strong>Performance:</strong> 
+                    {% if bounce_rate < 40 %}
+                        Excellent user engagement! 🎉
+                    {% elif bounce_rate < 60 %}
+                        Good user retention 👍
+                    {% else %}
+                        Consider improving content engagement 📈
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="mb-2"><strong>Session Quality:</strong> 
+                    {% if avg_session_duration > 60 %}
+                        Users spend good time on site ⏰
+                    {% else %}
+                        Quick visits - optimize for engagement 🚀
+                    {% endif %}
+                </p>
+                <p class="mb-0"><strong>Recommendation:</strong> Focus on your {{ most_visited[0][0]|title if most_visited else 'top' }} page optimization</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Charts Section -->
+<section class="container">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">
+                            <i class="fas fa-chart-bar"></i>Page Views Analysis
+                        </h3>
+                        <p class="chart-subtitle">Traffic distribution across your website pages</p>
+                    </div>
+                </div>
+                {% if page_views %}
+                <div class="chart-canvas">
+                    <canvas id="pageViewsChart"></canvas>
+                </div>
+                {% else %}
+                <div class="no-data">
+                    <i class="fas fa-chart-bar"></i>
+                    <h5>No Data Available</h5>
+                    <p>Start browsing your website to see analytics data here.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">
+                            <i class="fas fa-trophy"></i>Top Pages
+                        </h3>
+                        <p class="chart-subtitle">Most visited pages</p>
+                    </div>
+                </div>
+                {% if most_visited %}
+                <div class="chart-canvas">
+                    <canvas id="mostVisitedChart"></canvas>
+                </div>
+                {% else %}
+                <div class="no-data">
+                    <i class="fas fa-trophy"></i>
+                    <h5>No Data Available</h5>
+                    <p>Visit pages to see popularity rankings.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Additional Analytics -->
+<section class="dashboard-stats">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <i class="fas fa-chart-line" style="font-size: 2rem; margin-bottom: 0.5rem; color: var(--accent-color);"></i>
+                <h4>Real-time</h4>
+                <p class="mb-0">Live analytics tracking</p>
+            </div>
+            <div class="col-md-3">
+                <i class="fas fa-mobile-alt" style="font-size: 2rem; margin-bottom: 0.5rem; color: var(--accent-color);"></i>
+                <h4>Responsive</h4>
+                <p class="mb-0">Works on all devices</p>
+            </div>
+            <div class="col-md-3">
+                <i class="fas fa-shield-alt" style="font-size: 2rem; margin-bottom: 0.5rem; color: var(--accent-color);"></i>
+                <h4>Secure</h4>
+                <p class="mb-0">Privacy-focused tracking</p>
+            </div>
+            <div class="col-md-3">
+                <i class="fas fa-rocket" style="font-size: 2rem; margin-bottom: 0.5rem; color: var(--accent-color);"></i>
+                <h4>Fast</h4>
+                <p class="mb-0">Lightning-quick insights</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+{% if page_views %}
+// Page Views Chart
+const pageViewsCtx = document.getElementById('pageViewsChart');
+if (pageViewsCtx) {
+    const pageViewsChart = new Chart(pageViewsCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for page, count in page_views %}'{{ page|title }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Page Views',
+                data: [{% for page, count in page_views %}{{ count }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(34, 197, 94, 0.8)',
+                    'rgba(239, 68, 68, 0.8)',
+                    'rgba(168, 85, 247, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(245, 158, 11, 1)',
+                    'rgba(34, 197, 94, 1)',
+                    'rgba(239, 68, 68, 1)',
+                    'rgba(168, 85, 247, 1)'
+                ],
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(31, 41, 55, 0.9)',
+                    titleColor: 'white',
+                    bodyColor: 'white',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                }
             },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#6b7280',
+                        font: {
+                            weight: 500
+                        }
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(107, 114, 128, 0.1)'
+                    },
+                    ticks: {
+                        color: '#6b7280',
+                        font: {
+                            weight: 500
+                        }
                     }
                 }
-            }
-        });
-
-        // Most Visited Pages Chart
-        const mostVisitedCtx = document.getElementById('mostVisitedChart').getContext('2d');
-        const mostVisitedChart = new Chart(mostVisitedCtx, {
-            type: 'doughnut',
-            data: {
-                labels: [{% for page, count in most_visited %}'{{ page|title }}'{% if not loop.last %},{% endif %}{% endfor %}],
-                datasets: [{
-                    data: [{% for page, count in most_visited %}{{ count }}{% if not loop.last %},{% endif %}{% endfor %}],
-                    backgroundColor: [
-                        '#FF6384',
-                        '#36A2EB',
-                        '#FFCE56',
-                        '#4BC0C0',
-                        '#9966FF'
-                    ]
-                }]
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart'
             }
-        });
-    </script>
-</body>
-</html>
+        }
+    });
+}
+{% endif %}
+
+{% if most_visited %}
+// Most Visited Pages Chart
+const mostVisitedCtx = document.getElementById('mostVisitedChart');
+if (mostVisitedCtx) {
+    const mostVisitedChart = new Chart(mostVisitedCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [{% for page, count in most_visited %}'{{ page|title }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                data: [{% for page, count in most_visited %}{{ count }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: [
+                    '#3b82f6',
+                    '#f59e0b',
+                    '#22c55e',
+                    '#ef4444',
+                    '#a855f7'
+                ],
+                borderWidth: 3,
+                borderColor: 'white',
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        font: {
+                            weight: 500
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(31, 41, 55, 0.9)',
+                    titleColor: 'white',
+                    bodyColor: 'white',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                }
+            },
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+}
+{% endif %}
+
+// Auto-refresh every 30 seconds
+setTimeout(() => {
+    location.reload();
+}, 30000);
+</script>
+{% endblock %}
