@@ -51,22 +51,22 @@ def end_session():
 @app.route('/')
 def home():
     log_page_view('home')
-    return render_template('home.html')
+    return render_template('home_new.html')
 
 @app.route('/about')
 def about():
     log_page_view('about')
-    return render_template('about.html')
+    return render_template('about_new.html')
 
 @app.route('/services')
 def services():
     log_page_view('services')
-    return render_template('services.html')
+    return render_template('services_new.html')
 
 @app.route('/contact')
 def contact():
     log_page_view('contact')
-    return render_template('contact.html')
+    return render_template('contact_new.html')
 
 @app.route('/dashboard')
 def dashboard():
