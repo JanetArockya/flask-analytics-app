@@ -1,2 +1,6 @@
 flask
 gunicorn
+google-analytics-data
+google-auth
+google-auth-oauthlib
+python-dotenv

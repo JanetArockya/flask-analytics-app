@@ -197,6 +197,19 @@
             <div class="col-lg-8">
                 <h1 class="mb-2">📊 Analytics Dashboard</h1>
                 <p class="mb-0 opacity-90">Real-time insights into your website performance and user behavior</p>
+                {% if is_live_data %}
+                <div class="mt-2">
+                    <span class="badge bg-success">
+                        <i class="fas fa-check-circle me-1"></i>Google Analytics Connected
+                    </span>
+                </div>
+                {% else %}
+                <div class="mt-2">
+                    <span class="badge bg-warning text-dark">
+                        <i class="fas fa-exclamation-triangle me-1"></i>Using Local Analytics Data
+                    </span>
+                </div>
+                {% endif %}
             </div>
             <div class="col-lg-4 text-lg-end">
                 <button class="refresh-btn" onclick="location.reload()">
@@ -231,18 +244,18 @@
         <div class="col-lg-3 col-md-6">
             <div class="metric-card">
                 <div class="metric-icon">
-                    <i class="fas fa-eye"></i>
+                    <i class="fas fa-users"></i>
                 </div>
-                <div class="metric-value">{{ page_views|length if page_views else 0 }}</div>
-                <div class="metric-label">Total Pages</div>
+                <div class="metric-value">{{ active_users if active_users else (total_sessions if total_sessions else 0) }}</div>
+                <div class="metric-label">Active Users</div>
             </div>
         </div>
         <div class="col-lg-3 col-md-6">
             <div class="metric-card">
                 <div class="metric-icon">
-                    <i class="fas fa-users"></i>
+                    <i class="fas fa-eye"></i>
                 </div>
-                <div class="metric-value">{{ most_visited|sum(attribute=1) if most_visited else 0 }}</div>
+                <div class="metric-value">{{ total_page_views if total_page_views else (most_visited|sum(attribute=1) if most_visited else 0) }}</div>
                 <div class="metric-label">Total Views</div>
             </div>
         </div>
