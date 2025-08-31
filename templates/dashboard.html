@@ -1,0 +1,49 @@
+<!D        <title>Analytics Dashboard</title>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-GC4HBWCR8E"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-GC4HBWCR8E');
+        </script>ml>
+<html>
+<head>
+        <title>Analytics Dashboard</title>
+        <!-- Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-F3J9M7GQ19"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-F3J9M7GQ19');
+        </script>
+</head>
+<body>
+    <h1>Analytics Dashboard</h1>
+    <nav>
+        <a href="/">Home</a> |
+        <a href="/about">About</a> |
+        <a href="/services">Services</a> |
+        <a href="/contact">Contact</a> |
+        <a href="/dashboard">Analytics Dashboard</a>
+    </nav>
+    <h2>Page Views</h2>
+    <ul>
+        {% for page, count in page_views %}
+            <li>{{ page }}: {{ count }}</li>
+        {% endfor %}
+    </ul>
+    <h2>Most Visited Pages</h2>
+    <ul>
+        {% for page, count in most_visited %}
+            <li>{{ page }}: {{ count }}</li>
+        {% endfor %}
+    </ul>
+    <h2>Bounce Rate</h2>
+    <p>{{ bounce_rate }}%</p>
+    <h2>Average Session Duration</h2>
+    <p>{{ avg_session_duration }} seconds</p>
+</body>
+</html>
